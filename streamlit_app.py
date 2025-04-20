@@ -53,26 +53,25 @@ st.markdown("#### 🗂️ Manage Reports")
 if "available_reports" not in st.session_state:
     report_files = [f for f in os.listdir() if f.startswith("expenses_") and f.endswith(".json")]
     reports = [f[len("expenses_"):-len(".json")] for f in report_files]
-    if "default" not in reports:
-        reports.append("default")
-    st.session_state.available_reports = sorted(reports)
+    st.session_state.available_reports = sorted(reports)  # No default manually added
 
 # Select or create a report
-current_report = st.session_state.get("current_report", "default")
-# Ensure current_report is present in available_reports to avoid ValueError
-if current_report not in st.session_state.available_reports:
-    st.session_state.available_reports.append(current_report)
+
+
+# If no report is selected yet, don't show any selection
 selected_report = st.selectbox(
-    "Choose an expense report", 
-    st.session_state.available_reports, 
-    index=st.session_state.available_reports.index(current_report)
+    "Choose an expense report",
+    options=st.session_state.available_reports,
+    index=None,
+    placeholder="Select an expense report"
 )
 
 # If user selected a new report, update and rerun immediately
-if selected_report != current_report:
+if selected_report:
     st.session_state.current_report = selected_report
     st.session_state.expenses, st.session_state.participants = load_expenses(selected_report)
-    st.rerun()
+    # rest of your logic here
+
 new_report = st.text_input("Create a new report", "")
 
 if new_report.strip() and new_report.strip() not in st.session_state.available_reports:
@@ -314,4 +313,3 @@ if st.session_state.expenses:
     )
 else:
     st.info("Add at least one expense to get started.")
-
