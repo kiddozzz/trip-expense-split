@@ -59,6 +59,9 @@ if "available_reports" not in st.session_state:
 
 # Select or create a report
 current_report = st.session_state.get("current_report", "default")
+# Ensure current_report is present in available_reports to avoid ValueError
+if current_report not in st.session_state.available_reports:
+    st.session_state.available_reports.append(current_report)
 selected_report = st.selectbox(
     "Choose an expense report", 
     st.session_state.available_reports, 
@@ -73,10 +76,13 @@ if selected_report != current_report:
 new_report = st.text_input("Create a new report", "")
 
 if new_report.strip() and new_report.strip() not in st.session_state.available_reports:
-    new_report = new_report.strip()
-    st.session_state.expenses = []
-    st.session_state.current_report = new_report
-    st.rerun()
+    #if st.button("➕ Create and Switch to New Report"):
+        new_report = new_report.strip()
+        st.session_state.expenses = []
+        st.session_state.participants = []
+        st.session_state.available_reports.append(new_report)
+        st.session_state.current_report = new_report
+        st.rerun()
     
 # Save report manually with the name provided or selected
 if st.button("💾 Save Expense Report"):
@@ -99,10 +105,7 @@ if (
     st.session_state.current_report = selected_report
 
 # Ensure participants exist
-if st.session_state.participants:
-    current_names = ", ".join(st.session_state.participants)
-else:
-    current_names = "Alice, Bob, Charlie"
+current_names = ", ".join(st.session_state.participants) if st.session_state.participants else ""
 
 participants_input = st.text_input("Enter participant names (comma-separated)", current_names)
 participant_list = [p.strip() for p in participants_input.split(",") if p.strip()]
